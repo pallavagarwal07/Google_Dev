@@ -4,10 +4,16 @@
 #include <GL/glu.h>
 
 void setup() {
+    glClearDepth(1.0f);                         // Depth Buffer Setup
+    glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
+    glDepthFunc(GL_LEQUAL);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    gluLookAt(0.0f, 0.0f, 0.0f, 0, 0, -1, 0, 1, 0);
 }
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    glTranslatef(0.0f,0.0f,0.0f);
     glColor3f(0.0f, 1.0f, 0.0f);
     glRectf(-0.75f,0.75f, 0.75f, -0.75f);
     glutSwapBuffers();
