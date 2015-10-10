@@ -31,19 +31,33 @@ void onFrame(const Controller& controller){
     HandList hands = frame.hands();
     int i;
     Finger fingers[10];
+    Vector coordinates[10][4];
     for(i=0;i<10;i++)
     {
     	fingers[i]=hands[i/5].fingers()[i%5];
-    	cout << "TIP " << fingers[i].tipPosition();
+    	//cout << "TIP " << fingers[i].tipPosition();
     	int j;
-    	for(j=0;j<4;j++)
+    	for(j=1;j<4;j++)
     	{
 			Bone::Type boneType = static_cast<Leap::Bone::Type>(j);
-			cout << "NUMBER " << j << endl;
+			//cout << "NUMBER " << j << endl;
 			Bone bone = fingers[i].bone(boneType);// << endl;
-			cout << "NEXT " << bone.nextJoint() << endl;
-			cout << "PREVIOUS  " << bone.prevJoint() << endl;
-			cout << bone.type() << endl;
+			if(j==1)
+				coordinates[i][0]=bone.prevJoint();
+			coordinates[i][j]=bone.nextJoint();
+			//cout << "NEXT " << bone.nextJoint() << endl;
+			//cout << "PREVIOUS  " << bone.prevJoint() << endl;
+			//cout << bone.type() << endl;
+
+		}
+
+		for(j=0;j<10;j++)
+		{
+			int k;
+			for(k=0;k<4;k++)
+			{
+				cout << coordinates[j][k];
+			}
 		}
 }
 
