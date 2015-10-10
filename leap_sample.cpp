@@ -34,8 +34,18 @@ void onFrame(const Controller& controller){
     for(i=0;i<10;i++)
     {
     	fingers[i]=hands[i/5].fingers()[i%5];
-    	cout << fingers[i].tipPosition();
-    }
+    	cout << "TIP " << fingers[i].tipPosition();
+    	int j;
+    	for(j=0;j<4;j++)
+    	{
+			Bone::Type boneType = static_cast<Leap::Bone::Type>(j);
+			cout << "NUMBER " << j << endl;
+			Bone bone = fingers[i].bone(boneType);// << endl;
+			cout << "NEXT " << bone.nextJoint() << endl;
+			cout << "PREVIOUS  " << bone.prevJoint() << endl;
+			cout << bone.type() << endl;
+		}
+}
 
     //Hand firstHand = hands[0];
     //Finger rightFinger = firstHand.fingers().rightmost();
@@ -49,13 +59,12 @@ int main(int argc, char** argv)
 
 	controller.addListener(listener);
 	
-	
 
 	cout << "Press Enter to quit..." << endl;
 	cin.get();
-
+	while(1)
 	onFrame(controller);
-	
+
 	controller.removeListener(listener);
 	return 0;
 }

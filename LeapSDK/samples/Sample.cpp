@@ -18,7 +18,7 @@ void SampleListener::onConnect(const Controller& controller){
 
 void SampleListener::onFrame(const Controller& controller){
 	cout << "Frame availables" << endl;
-	const Frame frame = controller.frame();
+	const Frame frame = controller.frame();	
 	/*std::cout << "Frame id: " << frame.id()
           << ", timestamp: " << frame.timestamp()
           << ", hands: " << frame.hands().count()
