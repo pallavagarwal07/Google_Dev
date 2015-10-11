@@ -12,6 +12,9 @@ clean:
 gl_2 : gl_2.cpp
 	g++ -o $@ $< -lGL -lGLU -lglut
 
+gl_3 : gl_3.cpp
+	g++ -Wall -g -I./LeapSDK/include -o $@ $< -lGL -lGLU -lglut $(LEAP_LIBRARY)
+
 gl_test : gl_test.cpp
 	g++ -o $@ $< -lGL -lGLU -lglut
 

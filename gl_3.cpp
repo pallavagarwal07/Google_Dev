@@ -1,3 +1,6 @@
+#include <bits/stdc++.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
 #include <iostream>
 #include <string.h>
 #include "Leap.h"
@@ -5,6 +8,8 @@
 using namespace Leap;
 using namespace std;
 
+int first;
+Vector coordinates[10][4];
 void oneFrame(const Controller& controller);
 
 class SampleListener:public Listener {
@@ -21,10 +26,11 @@ void SampleListener::onConnect(const Controller& controller){
 
 void SampleListener::onFrame(const Controller& controller)
 {
-    //cout << "Testing";
     oneFrame(controller);
     const Frame frame = controller.frame();
     Leap::GestureList gestures = frame.gestures();
+	glutSetWindow(first);
+	glutPostRedisplay();  // Update screen with new rotation data
     for(Leap::GestureList::const_iterator gl = gestures.begin(); gl != gestures.end(); gl++)
     {
         switch ((*gl).state()) {
@@ -54,14 +60,12 @@ void SampleListener::onFrame(const Controller& controller)
         }
     }
 }
-
 void oneFrame(const Controller& controller){
     cout << "Frame availables" << endl;
     const Frame frame = controller.frame();
     HandList hands = frame.hands();
     int i;
     Finger fingers[10];
-    Vector coordinates[10][4];
     for(i=0;i<10;i++)
     {
         fingers[i]=hands[i/5].fingers()[i%5];
@@ -108,14 +112,101 @@ void gesture(const Controller& controller)
     }
 }
 
-int main(int argc, char** argv)
+void init ( GLvoid )
 {
+    glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
+    glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
+    glClearDepth(1.0f);									// Depth Buffer Setup
+    glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
+    glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
+    glEnable ( GL_COLOR_MATERIAL );
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+}
+GLfloat angle = 0;
+void display1(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
+    glLoadIdentity();									// Reset The Current Modelview Matrix
+    glPushMatrix();
+    gluLookAt(0, 0, 0, 0, 0, -1, 0, 1, 0);
+    glTranslatef(0.0f,0.0f,-6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
+    glRotatef(angle, 0, 1, 0);
+    for(int i=0; i<10; i++)
+        for(int j=0; j<4; j++)
+        {
+            glPushMatrix();
+            glLoadIdentity();
+            glTranslatef(coordinates[i][j][0]/150, coordinates[i][j][1]/150 - 1, -6 + coordinates[i][j][2]/150);
+            glutWireSphere(.05f, 10, 10);
+            glPopMatrix();
+        }
+    angle += 1;
+    glRotatef(-angle, 0, 1, 0);
+    glutSwapBuffers();
+}
+
+void reshape ( int w, int h )   // Create The Reshape Function (the viewport)
+{
+    glViewport     ( 0, 0, w, h );
+    glMatrixMode   ( GL_PROJECTION );  // Select The Projection Matrix
+    glLoadIdentity ( );                // Reset The Projection Matrix
+    if ( h==0 )  // Calculate The Aspect Ratio Of The Window
+        gluPerspective ( 80, ( float ) w, 1.0, 5000.0 );
+    else
+        gluPerspective ( 80, ( float ) w / ( float ) h, 1.0, 5000.0 );
+    glMatrixMode   ( GL_MODELVIEW );  // Select The Model View Matrix
+    glLoadIdentity ( );    // Reset The Model View Matrix
+}
+
+void keyboard ( unsigned char key, int x, int y )  // Create Keyboard Function
+{
+    switch ( key ) {
+        case 27:
+            exit ( 0 );
+            break;
+        default:
+            break;
+    }
+}
+
+void arrow_keys ( int a_keys, int x, int y )  // Create Special Function (required for arrow keys)
+{
+    switch ( a_keys ) {
+        case GLUT_KEY_UP:     // When Up Arrow Is Pressed...
+            glutFullScreen(); // Go Into Full Screen Mode
+            break;
+        case GLUT_KEY_LEFT:
+            break;
+        case GLUT_KEY_DOWN:               // When Down Arrow Is Pressed...
+            glutReshapeWindow(500, 500); // Go Into A 500 By 500 Window
+            break;
+        default:
+            break;
+    }
+}
+
+int main ( int argc, char** argv )   // Create Main Function For Bringing It All Together
+{
+
+    glEnable ( GL_LIGHTING ) ;
+    glutInit(&argc, argv); // Erm Just Write It =)
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE); // Display Mode
+    glutInitWindowSize(500, 500); // If glutFullScreen wasn't called this is the window size
+
+    first = glutCreateWindow("cube"); // Window Title (argv[0] for current directory as title)
     SampleListener listener;
     Controller controller;
     controller.addListener(listener);
     gesture(controller);
     cout << "Press Enter to quit..." << endl;
-    cin.get();
+    init();
+    glutDisplayFunc(display1);  // Matching Earlier Functions To Their Counterparts
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
+    glutSpecialFunc(arrow_keys);
+    glutIdleFunc(display1);
+
+    glutMainLoop();          // Initialize The Main Loop
     controller.removeListener(listener);
-    return 0;
 }
+
