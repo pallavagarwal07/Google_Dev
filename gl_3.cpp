@@ -8,9 +8,11 @@
 using namespace Leap;
 using namespace std;
 
-int first;
+int first, frames_n = 0;
 Vector coordinates[10][4];
+Vector Normal = Vector(0,0,0);
 void oneFrame(const Controller& controller);
+double matrix[16] = {0};
 
 class SampleListener:public Listener {
     public:
@@ -51,7 +53,9 @@ void SampleListener::onFrame(const Controller& controller)
                       {
                       clockwiseness = "counterclockwise";
                       }*/
-                    cout << circleGesture.normal() << endl;
+                    Normal = circleGesture.normal();
+                    cout << Normal << endl;
+                    frames_n = 60;
                     break;
                 }
             default:
@@ -61,7 +65,6 @@ void SampleListener::onFrame(const Controller& controller)
     }
 }
 void oneFrame(const Controller& controller){
-    cout << "Frame availables" << endl;
     const Frame frame = controller.frame();
     HandList hands = frame.hands();
     int i;
@@ -77,15 +80,6 @@ void oneFrame(const Controller& controller){
             if(j==1)
                 coordinates[i][0]=bone.prevJoint();
             coordinates[i][j]=bone.nextJoint();
-        }
-
-        for(j=0;j<10;j++)
-        {
-            int k;
-            for(k=0;k<4;k++)
-            {
-                cout << coordinates[j][k] << endl;
-            }
         }
     }
 }
@@ -148,12 +142,27 @@ void display1(void)
     glPushMatrix();
     gluLookAt(0, 0, 0, 0, 0, -1, 0, 1, 0);
     glTranslatef(0.0f,0.0f,-6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
+    if(frames_n != 0)
+    {
+        glPushMatrix();
+        glLoadMatrixd(matrix);
+        glRotatef(2, Normal[0], Normal[1], Normal[2]);
+        frames_n--;
+        glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
+        glutWireCube(1);
+        glPopMatrix();
+    }
+    else
+    {
+        glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
+        glutWireCube(1);
+    }
     glRotatef(angle, 0, 1, 0);
     for(int i=0; i<10; i++)
-        for(int j=0; j<3; j++)
+        for(int j=0; j<4; j++)
         {
             float x1 = coordinates[i][j][0]/75, y1 = coordinates[i][j][1]/75 - 1, z1 = -6 + coordinates[i][j][2]/75;
-            if(j!=4)
+            if(j<3)
             {
                 float x2 = coordinates[i][j+1][0]/75, y2 = coordinates[i][j+1][1]/75 - 1, z2 = -6 + coordinates[i][j+1][2]/75;
                 joinCyllinder(x1, y1, z1, x2, y2, z2);
@@ -161,7 +170,7 @@ void display1(void)
             glPushMatrix();
             glLoadIdentity();
             glTranslatef(x1, y1, z1);
-            glutWireSphere(.05f, 10, 10);
+            glutWireSphere(.03f, 10, 10);
             glPopMatrix();
         }
     angle += 1;
