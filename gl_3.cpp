@@ -123,6 +123,24 @@ void init ( GLvoid )
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 GLfloat angle = 0;
+
+
+void joinCyllinder(float x1, float y1, float z1, float x2, float y2, float z2)
+{
+            glPushMatrix();
+            glLoadIdentity();
+            float r = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1));
+            glTranslatef(x1, y1, z1);
+            glRotatef(180, (x2-x1)/2, (y2-y1)/2, (z2-z1+r)/2);
+            glBegin(GL_QUADS);
+            glVertex3f(0,0,r);
+            glVertex3f(0.03, 0, 0);
+            glVertex3f(0,0,-r);
+            glVertex3f(-0.03, 0, 0);
+            glEnd();
+            glPopMatrix();
+}
+
 void display1(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
@@ -132,11 +150,17 @@ void display1(void)
     glTranslatef(0.0f,0.0f,-6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
     glRotatef(angle, 0, 1, 0);
     for(int i=0; i<10; i++)
-        for(int j=0; j<4; j++)
+        for(int j=0; j<3; j++)
         {
+            float x1 = coordinates[i][j][0]/75, y1 = coordinates[i][j][1]/75 - 1, z1 = -6 + coordinates[i][j][2]/75;
+            if(j!=4)
+            {
+                float x2 = coordinates[i][j+1][0]/75, y2 = coordinates[i][j+1][1]/75 - 1, z2 = -6 + coordinates[i][j+1][2]/75;
+                joinCyllinder(x1, y1, z1, x2, y2, z2);
+            }
             glPushMatrix();
             glLoadIdentity();
-            glTranslatef(coordinates[i][j][0]/150, coordinates[i][j][1]/150 - 1, -6 + coordinates[i][j][2]/150);
+            glTranslatef(x1, y1, z1);
             glutWireSphere(.05f, 10, 10);
             glPopMatrix();
         }
