@@ -10,6 +10,7 @@ using namespace std;
 
 int first, frames_n = 0;
 Vector coordinates[10][4];
+Vector Tangent = Vector(0,0,0);
 Vector Normal = Vector(0,0,0);
 void oneFrame(const Controller& controller);
 double matrix[16] = {0};
@@ -22,7 +23,7 @@ class SampleListener:public Listener {
 
 void SampleListener::onConnect(const Controller& controller){
     cout << "Connected" << endl;
-    controller.enableGesture(Gesture::TYPE_CIRCLE);
+    controller.enableGesture(Gesture::TYPE_SWIPE);
     //oneFrame(controller);
 }
 
@@ -45,7 +46,7 @@ void SampleListener::onFrame(const Controller& controller)
             case Leap::Gesture::STATE_STOP:
                 {    cout << "stop" << endl;//Handle ending gestures
                     std::string clockwiseness;
-                    Leap::CircleGesture circleGesture = Leap::CircleGesture(*gl);
+                    Leap::SwipeGesture circleGesture = Leap::SwipeGesture(*gl);
                     /*if ((circleGesture).pointable().direction().angleTo((circleGesture.normal())) <= Leap::PI/2) {
                       clockwiseness = "clockwise";
                       }
@@ -53,7 +54,10 @@ void SampleListener::onFrame(const Controller& controller)
                       {
                       clockwiseness = "counterclockwise";
                       }*/
-                    Normal = circleGesture.normal();
+                    Tangent = circleGesture.direction();
+                    double a = Tangent[0],b = Tangent[1], c = Tangent[2];
+                    double d = sqrt(2*c*c+(b-a)*(b-a));
+                    Normal = Vector(c/d,-c/d,(b-a)/d);
                     cout << Normal << endl;
                     frames_n = 60;
                     break;

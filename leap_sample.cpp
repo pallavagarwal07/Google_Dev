@@ -15,7 +15,7 @@ class SampleListener:public Listener {
 
 void SampleListener::onConnect(const Controller& controller){
     cout << "Connected" << endl;
-    controller.enableGesture(Gesture::TYPE_CIRCLE);
+    controller.enableGesture(Gesture::TYPE_SWIPE);
     //oneFrame(controller);
 }
 
@@ -37,7 +37,7 @@ void SampleListener::onFrame(const Controller& controller)
             case Leap::Gesture::STATE_STOP:
                 {    cout << "stop" << endl;//Handle ending gestures
                     std::string clockwiseness;
-                    Leap::CircleGesture circleGesture = Leap::CircleGesture(*gl);
+                    Leap::SwipeGesture circleGesture = Leap::SwipeGesture(*gl);
                     /*if ((circleGesture).pointable().direction().angleTo((circleGesture.normal())) <= Leap::PI/2) {
                       clockwiseness = "clockwise";
                       }
@@ -45,7 +45,7 @@ void SampleListener::onFrame(const Controller& controller)
                       {
                       clockwiseness = "counterclockwise";
                       }*/
-                    cout << circleGesture.normal() << endl;
+                    cout << circleGesture.direction() << endl;
                     break;
                 }
             default:
@@ -80,7 +80,7 @@ void oneFrame(const Controller& controller){
             int k;
             for(k=0;k<4;k++)
             {
-                cout << coordinates[j][k] << endl;
+                //cout << coordinates[j][k] << endl;
             }
         }
     }
